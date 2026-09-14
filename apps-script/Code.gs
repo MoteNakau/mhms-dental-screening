@@ -28,16 +28,18 @@ const CONFIG = {
 
   // Authorized users (email addresses)
   // Authorization MUST be enforced server-side
+  // Add your MHMS staff email addresses here with their roles
   AUTHORIZED_USERS: {
-    // SCREENER role
-    // 'screener@mhms.gov.ki': 'SCREENER',
-
-    // SUPERVISOR role
+    // Example (uncomment and add real emails):
+    // 'your.email@mhms.gov.ki': 'ADMIN',
+    // 'screener1@mhms.gov.ki': 'SCREENER',
     // 'supervisor@mhms.gov.ki': 'SUPERVISOR',
-
-    // ADMIN role
-    // 'admin@mhms.gov.ki': 'ADMIN',
   },
+
+  // Set to true to allow ANY signed-in Google user (for initial testing ONLY)
+  // WARNING: Do NOT enable in production — this bypasses user-level authorization
+  // Turn this on temporarily to test, then add specific users above and set back to false
+  ALLOW_ANY_AUTHENTICATED_USER: true,
 
   // Sheet names
   SHEETS: {
@@ -78,8 +80,25 @@ function doGet(e) {
     const action = e.parameter.action;
     const userEmail = getSessionEmail();
 
+    // Special setup endpoint - always accessible to help with configuration
+    if (action === 'whoami') {
+      return jsonResponse({
+        success: true,
+        email: userEmail || '(not signed in to Google)',
+        authorized: isAuthorized(userEmail),
+        message: userEmail
+          ? 'Add this email to CONFIG.AUTHORIZED_USERS in Code.gs: "' + userEmail + '": "ADMIN"'
+          : 'You are not signed into a Google account. Sign in and try again.'
+      });
+    }
+
     if (!isAuthorized(userEmail)) {
-      return jsonResponse({ success: false, error: 'Unauthorized' }, 401);
+      return jsonResponse({
+        success: false,
+        error: 'Unauthorized',
+        message: 'Your email is not authorized. Run ?action=whoami to see your email, then add it to CONFIG.AUTHORIZED_USERS in Code.gs',
+        yourEmail: userEmail || '(not signed in)'
+      }, 401);
     }
 
     switch (action) {
@@ -169,11 +188,16 @@ function getSessionEmail() {
 
 function isAuthorized(email) {
   if (!email) return false;
+  // If testing mode is enabled, allow any authenticated Google user
+  if (CONFIG.ALLOW_ANY_AUTHENTICATED_USER) return true;
+  // Otherwise, check if user is in the authorized list
   if (!CONFIG.AUTHORIZED_USERS[email]) return false;
   return true;
 }
 
 function getUserRole(email) {
+  // If testing mode, default to ADMIN for convenience
+  if (CONFIG.ALLOW_ANY_AUTHENTICATED_USER) return 'ADMIN';
   return CONFIG.AUTHORIZED_USERS[email] || null;
 }
 

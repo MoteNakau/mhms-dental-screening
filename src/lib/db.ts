@@ -533,11 +533,21 @@ async function syncItem(item: SyncQueueItem): Promise<boolean> {
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`Server returned ${response.status}`);
+    // Try to parse response even on error (server may return helpful JSON)
+    let result;
+    try {
+      result = await response.json();
+    } catch (parseError) {
+      throw new Error(`Server returned status ${response.status}`);
     }
 
-    const result = await response.json();
+    if (!response.ok) {
+      // Include server message if available
+      if (result && result.error === 'Unauthorized') {
+        throw new Error('Unauthorized — your email is not in the authorized users list. See backend setup.');
+      }
+      throw new Error(result?.message || result?.error || `Server returned ${response.status}`);
+    }
 
     if (result.success) {
       // Server confirmed - safe to remove from queue
@@ -559,7 +569,11 @@ async function syncItem(item: SyncQueueItem): Promise<boolean> {
       }
       return true;
     } else {
-      throw new Error(result.error || 'Server rejected submission');
+      // Check for authorization error - give helpful message
+      if (result.error === 'Unauthorized') {
+        throw new Error('Backend authorization required. Ask admin to add your email to the authorized users list.');
+      }
+      throw new Error(result.error || result.message || 'Server rejected submission');
     }
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Network error';

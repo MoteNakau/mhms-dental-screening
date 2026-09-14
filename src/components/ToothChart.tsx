@@ -61,26 +61,36 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
 
   const getFinding = (code: string) => findings.find(f => f.toothCode === code);
 
-  // Organize teeth into quadrants
+  // Organize teeth into quadrants for DISPLAY (viewer's perspective looking at patient)
+  // Standard dental chart layout:
+  //   Upper: [18 17 16 15 14 13 12 11] | [21 22 23 24 25 26 27 28]
+  //   Lower: [48 47 46 45 44 43 42 41] | [31 32 33 34 35 36 37 38]
+  //
+  // Viewer's LEFT = Patient's RIGHT
+  // Viewer's RIGHT = Patient's LEFT
+
   const getQuadrant = (teethList: string[], start: number, end: number) =>
     teethList.filter(t => {
       const num = parseInt(t);
       return num >= start && num <= end;
     });
 
-  // Permanent: UR(11-18), UL(21-28), LL(31-38), LR(41-48)
-  // Primary: UR(51-55), UL(61-65), LL(71-75), LR(81-85)
-  let q1: string[], q2: string[], q3: string[], q4: string[];
+  // For display, we need:
+  // upperLeft (viewer's left, patient's right Q1): reversed 11-18 → 18,17,...,11
+  // upperRight (viewer's right, patient's left Q2): 21-28 as is
+  // lowerLeft (viewer's left, patient's right Q4): reversed 41-48 → 48,47,...,41
+  // lowerRight (viewer's right, patient's left Q3): 31-38 as is
+  let upperLeft: string[], upperRight: string[], lowerLeft: string[], lowerRight: string[];
   if (dentition === 'permanent') {
-    q1 = getQuadrant(teeth, 11, 18);
-    q2 = getQuadrant(teeth, 21, 28);
-    q3 = getQuadrant(teeth, 31, 38);
-    q4 = getQuadrant(teeth, 41, 48);
+    upperLeft = getQuadrant(teeth, 11, 18).reverse();  // 18,17,16,15,14,13,12,11
+    upperRight = getQuadrant(teeth, 21, 28);            // 21,22,23,24,25,26,27,28
+    lowerLeft = getQuadrant(teeth, 41, 48).reverse();   // 48,47,46,45,44,43,42,41
+    lowerRight = getQuadrant(teeth, 31, 38);            // 31,32,33,34,35,36,37,38
   } else {
-    q1 = getQuadrant(teeth, 51, 55);
-    q2 = getQuadrant(teeth, 61, 65);
-    q3 = getQuadrant(teeth, 71, 75);
-    q4 = getQuadrant(teeth, 81, 85);
+    upperLeft = getQuadrant(teeth, 51, 55).reverse();   // 55,54,53,52,51
+    upperRight = getQuadrant(teeth, 61, 65);            // 61,62,63,64,65
+    lowerLeft = getQuadrant(teeth, 81, 85).reverse();   // 85,84,83,82,81
+    lowerRight = getQuadrant(teeth, 71, 75);            // 71,72,73,74,75
   }
 
   const renderToothButton = (code: string) => {
@@ -116,23 +126,23 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
           {dentition === 'permanent' ? 'Permanent Dentition (32 teeth)' : 'Primary Dentition (20 teeth)'}
         </div>
 
-        {/* Upper arch */}
+        {/* Upper arch — viewer's perspective looking at patient */}
         <div className="flex justify-center gap-3 sm:gap-4 mb-2">
-          {renderQuadrant(q2)} {/* Upper left */}
+          {renderQuadrant(upperLeft)}  {/* Viewer's left = Patient's upper right (Q1: 18→11) */}
           <div className="w-px bg-gray-300" />
-          {renderQuadrant(q1)} {/* Upper right */}
+          {renderQuadrant(upperRight)} {/* Viewer's right = Patient's upper left (Q2: 21→28) */}
         </div>
 
         {/* Midline */}
         <div className="border-t border-b border-gray-300 py-1 text-center text-xs text-gray-400">
-          ← Left | Right →
+          ← Patient's Right | Patient's Left →
         </div>
 
-        {/* Lower arch */}
+        {/* Lower arch — viewer's perspective looking at patient */}
         <div className="flex justify-center gap-3 sm:gap-4 mt-2">
-          {renderQuadrant(q3)} {/* Lower left */}
+          {renderQuadrant(lowerLeft)}  {/* Viewer's left = Patient's lower right (Q4: 48→41) */}
           <div className="w-px bg-gray-300" />
-          {renderQuadrant(q4)} {/* Lower right */}
+          {renderQuadrant(lowerRight)} {/* Viewer's right = Patient's lower left (Q3: 31→38) */}
         </div>
       </div>
 

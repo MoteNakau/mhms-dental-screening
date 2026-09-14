@@ -42,8 +42,12 @@ import {
   isOnline,
   getSyncSummary,
   getAllScreenings,
+  getAllEvents,
+  initializeEvents,
 } from './lib/db';
+import type { ScreeningEvent } from './lib/types';
 import ToothChart from './components/ToothChart';
+import EventManager from './components/EventManager';
 
 // ============================================================
 // WIZARD STEPS
@@ -80,7 +84,9 @@ export default function App() {
   });
 
   // Event
-  const [selectedEvent, setSelectedEvent] = useState('EVT-DEFAULT');
+  const [events, setEvents] = useState<ScreeningEvent[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [showEventManager, setShowEventManager] = useState(false);
 
   // Screening data
   const [screeningDate, setScreeningDate] = useState(new Date().toISOString().split('T')[0]);
@@ -126,7 +132,9 @@ export default function App() {
   // INITIALIZATION
   // ============================================================
   useEffect(() => {
-    openDB().then(() => {
+    openDB().then(async () => {
+      await initializeEvents();
+      await loadEvents();
       loadPatients();
       updateSyncSummary();
     });
@@ -141,6 +149,15 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  async function loadEvents() {
+    const activeEvents = await getAllEvents(false);
+    setEvents(activeEvents);
+    // Auto-select first event if none selected
+    if (!selectedEvent && activeEvents.length > 0) {
+      setSelectedEvent(activeEvents[0].eventId);
+    }
+  }
 
   // Auto-calculate DMFT when findings change
   useEffect(() => {
@@ -428,6 +445,8 @@ export default function App() {
     setPhotos([]);
     setErrors({});
     setSaveStatus('idle');
+    // Reset event to first available
+    setSelectedEvent(events.length > 0 ? events[0].eventId : '');
     setCurrentStep('event');
   }
 
@@ -544,6 +563,12 @@ export default function App() {
               🆕 New Screening
             </button>
             <button
+              onClick={() => { setShowEventManager(true); setShowMenu(false); }}
+              className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm"
+            >
+              📋 Manage Events
+            </button>
+            <button
               onClick={handleSync}
               disabled={syncing}
               className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm disabled:opacity-50"
@@ -556,6 +581,16 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Event Manager Modal */}
+      {showEventManager && (
+        <EventManager
+          onClose={() => {
+            setShowEventManager(false);
+            loadEvents(); // Refresh events after closing manager
+          }}
+        />
       )}
 
       {/* Step indicator */}
@@ -593,7 +628,12 @@ export default function App() {
                   value={selectedEvent}
                   onChange={e => setSelectedEvent(e.target.value)}
                 >
-                  <option value="EVT-DEFAULT">General Screening</option>
+                  <option value="">Select an event...</option>
+                  {events.map(event => (
+                    <option key={event.eventId} value={event.eventId}>
+                      {event.name}{event.date ? ` (${event.date})` : ''}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -605,9 +645,15 @@ export default function App() {
                   onChange={e => setScreeningDate(e.target.value)}
                 />
               </div>
+              <button
+                onClick={() => setShowEventManager(true)}
+                className="btn-secondary w-full text-sm"
+              >
+                ⚙️ Manage Events
+              </button>
             </div>
             <div className="text-xs text-gray-500">
-              Select the screening event and confirm the date.
+              Select the screening event and confirm the date. Use "Manage Events" to create, archive, or delete events.
             </div>
           </div>
         )}

@@ -301,6 +301,129 @@ export async function getReferenceData<T>(key: string): Promise<T | null> {
 }
 
 // ============================================================
+// EVENT OPERATIONS
+// ============================================================
+
+import type { ScreeningEvent } from './types';
+
+const EVENTS_KEY = 'screening_events';
+
+/**
+ * Initialize events with default if none exist
+ */
+export async function initializeEvents(): Promise<void> {
+  const events = await getAllEventsWithArchived();
+  if (events.length === 0) {
+    // Seed with default event
+    const defaultEvent: ScreeningEvent = {
+      eventId: 'EVT-DEFAULT',
+      name: 'General Screening',
+      date: '',
+      location: '',
+      active: true,
+      createdAt: new Date().toISOString(),
+      createdBy: 'system',
+    };
+    await saveEvent(defaultEvent);
+  }
+}
+
+/**
+ * Get all events (optionally filter by active status)
+ */
+export async function getAllEvents(includeArchived: boolean = false): Promise<ScreeningEvent[]> {
+  const events = await getReferenceData<ScreeningEvent[]>(EVENTS_KEY);
+  if (!events) return [];
+  if (includeArchived) return events;
+  return events.filter(e => e.active);
+}
+
+/**
+ * Get all events including archived
+ */
+export async function getAllEventsWithArchived(): Promise<ScreeningEvent[]> {
+  const events = await getReferenceData<ScreeningEvent[]>(EVENTS_KEY);
+  return events || [];
+}
+
+/**
+ * Save an event (create or update)
+ */
+export async function saveEvent(event: ScreeningEvent): Promise<void> {
+  const events = await getAllEventsWithArchived();
+  const existingIndex = events.findIndex(e => e.eventId === event.eventId);
+
+  if (existingIndex >= 0) {
+    events[existingIndex] = event;
+  } else {
+    events.push(event);
+  }
+
+  await saveReferenceData(EVENTS_KEY, events);
+}
+
+/**
+ * Archive an event (soft delete - hides from active list)
+ */
+export async function archiveEvent(eventId: string, archivedBy: string): Promise<void> {
+  const events = await getAllEventsWithArchived();
+  const event = events.find(e => e.eventId === eventId);
+
+  if (event) {
+    event.active = false;
+    event.archivedAt = new Date().toISOString();
+    event.archivedBy = archivedBy;
+    await saveReferenceData(EVENTS_KEY, events);
+  }
+}
+
+/**
+ * Unarchive an event (restore to active)
+ */
+export async function unarchiveEvent(eventId: string): Promise<void> {
+  const events = await getAllEventsWithArchived();
+  const event = events.find(e => e.eventId === eventId);
+
+  if (event) {
+    event.active = true;
+    event.archivedAt = undefined;
+    event.archivedBy = undefined;
+    await saveReferenceData(EVENTS_KEY, events);
+  }
+}
+
+/**
+ * Delete an event permanently
+ * Only safe if no screenings reference this event
+ */
+export async function deleteEvent(eventId: string): Promise<{ success: boolean; error?: string }> {
+  // Check if any screenings reference this event
+  const screenings = await getAllScreenings();
+  const hasScreenings = screenings.some(s => s.eventId === eventId);
+
+  if (hasScreenings) {
+    return {
+      success: false,
+      error: 'Cannot delete event: screenings are associated with this event. Archive it instead.'
+    };
+  }
+
+  // Safe to delete
+  const events = await getAllEventsWithArchived();
+  const filtered = events.filter(e => e.eventId !== eventId);
+  await saveReferenceData(EVENTS_KEY, filtered);
+
+  return { success: true };
+}
+
+/**
+ * Generate a new event ID
+ */
+export function generateEventId(): string {
+  return `EVT-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`.toUpperCase();
+}
+
+// ============================================================
 // PATIENT OPERATIONS
 // ============================================================
 

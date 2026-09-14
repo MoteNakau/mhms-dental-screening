@@ -187,7 +187,6 @@ export const ROLES = {
 // ============================================================
 // DEFAULT EVENTS
 // ============================================================
-
-export const DEFAULT_EVENTS = [
-  { eventId: 'EVT-DEFAULT', name: 'General Screening', date: '', location: '', active: true },
-];
+// Events are now managed in IndexedDB via db.ts
+// A default "General Screening" event is seeded on first load
+// See: initializeEvents() in db.ts

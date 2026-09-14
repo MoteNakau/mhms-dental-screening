@@ -253,12 +253,16 @@ export interface Village {
   name: string;
 }
 
-export interface Event {
+export interface ScreeningEvent {
   eventId: string;
   name: string;
-  date: string;
+  date: string; // ISO date or empty for recurring
   location: string;
-  active: boolean;
+  active: boolean; // false = archived (hidden from dropdown but preserved for history)
+  createdAt: string;
+  createdBy: string;
+  archivedAt?: string;
+  archivedBy?: string;
 }
 
 export interface User {

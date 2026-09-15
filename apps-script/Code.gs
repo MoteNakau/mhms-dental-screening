@@ -691,7 +691,7 @@ function saveRiskFactors(ss, screeningId, risk) {
   let sheet = ss.getSheetByName(CONFIG.SHEETS.RISK_FACTORS);
   if (!sheet) {
     sheet = ss.insertSheet(CONFIG.SHEETS.RISK_FACTORS);
-    sheet.appendRow(['Screening_ID', 'TobaccoStatus', 'TobaccoType', 'TobaccoFreq', 'TobaccoYears', 'ArecaStatus', 'ArecaFreq', 'ArecaYears', 'ArecaTobaccoMixed', 'AlcoholStatus', 'AlcoholFreq', 'AlcoholAmount', 'AlcoholYears', 'FamilyCancer', 'FamilyRelationship', 'FamilyCancerType', 'Immunosuppression', 'OtherNotes']);
+    sheet.appendRow(['Screening_ID', 'TobaccoStatus', 'TobaccoType', 'TobaccoFreq', 'TobaccoYears', 'KoubenStatus', 'KoubenFreq', 'KoubenYears', 'AlcoholStatus', 'AlcoholFreq', 'AlcoholAmount', 'AlcoholYears', 'FamilyCancer', 'FamilyRelationship', 'Type2Diabetes', 'Obesity', 'OtherNotes']);
   }
   sheet.appendRow([
     screeningId,
@@ -702,15 +702,14 @@ function saveRiskFactors(ss, screeningId, risk) {
     risk.arecaBetel?.status || '',
     risk.arecaBetel?.frequency || '',
     risk.arecaBetel?.yearsUsed || '',
-    risk.arecaBetel?.tobaccoMixed || false,
     risk.alcohol?.status || '',
     risk.alcohol?.frequency || '',
     risk.alcohol?.typicalAmount || '',
     risk.alcohol?.yearsUsed || '',
     risk.familyCancer?.present || '',
     risk.familyCancer?.relationship || '',
-    risk.familyCancer?.cancerType || '',
-    risk.immunosuppression || false,
+    risk.type2Diabetes || false,
+    risk.obesity || false,
     risk.otherRiskFactors || '',
   ]);
 }

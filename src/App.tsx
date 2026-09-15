@@ -825,7 +825,7 @@ export default function App() {
                 <option value="former">Former user</option>
                 <option value="unknown">Unknown</option>
               </select>
-              {riskFactors.tobacco.status !== 'never' && (
+              {(riskFactors.tobacco.status === 'current' || riskFactors.tobacco.status === 'former') && (
                 <div className="space-y-2 pl-2 border-l-2 border-gray-200">
                   <div>
                     <label className="text-xs text-gray-600">Type</label>
@@ -863,9 +863,9 @@ export default function App() {
               )}
             </div>
 
-            {/* Areca/Betel */}
+            {/* Kouben (Areca/Betel) */}
             <div className="card space-y-2">
-              <label className="form-label">🌿 Areca / Betel Nut</label>
+              <label className="form-label">🌿 Kouben</label>
               <select
                 className="form-select"
                 value={riskFactors.arecaBetel.status}
@@ -876,7 +876,7 @@ export default function App() {
                 <option value="former">Former user</option>
                 <option value="unknown">Unknown</option>
               </select>
-              {riskFactors.arecaBetel.status !== 'never' && (
+              {(riskFactors.arecaBetel.status === 'current' || riskFactors.arecaBetel.status === 'former') && (
                 <div className="space-y-2 pl-2 border-l-2 border-gray-200">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -900,15 +900,6 @@ export default function App() {
                       />
                     </div>
                   </div>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={riskFactors.arecaBetel.tobaccoMixed || false}
-                      onChange={e => setRiskFactors({ ...riskFactors, arecaBetel: { ...riskFactors.arecaBetel, tobaccoMixed: e.target.checked } })}
-                      className="w-5 h-5 rounded"
-                    />
-                    <span className="text-sm">Mixed with tobacco</span>
-                  </label>
                 </div>
               )}
             </div>
@@ -926,7 +917,7 @@ export default function App() {
                 <option value="former">Former</option>
                 <option value="unknown">Unknown</option>
               </select>
-              {riskFactors.alcohol.status !== 'never' && (
+              {(riskFactors.alcohol.status === 'current' || riskFactors.alcohol.status === 'former') && (
                 <div className="space-y-2 pl-2 border-l-2 border-gray-200">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -972,9 +963,8 @@ export default function App() {
                 value={riskFactors.familyCancer.present}
                 onChange={e => setRiskFactors({ ...riskFactors, familyCancer: { ...riskFactors.familyCancer, present: e.target.value as any } })}
               >
-                <option value="no">No known family history</option>
+                <option value="no">No</option>
                 <option value="yes">Yes</option>
-                <option value="unknown">Unknown</option>
               </select>
               {riskFactors.familyCancer.present === 'yes' && (
                 <div className="space-y-2 pl-2 border-l-2 border-gray-200">
@@ -988,45 +978,39 @@ export default function App() {
                       onChange={e => setRiskFactors({ ...riskFactors, familyCancer: { ...riskFactors.familyCancer, relationship: e.target.value } })}
                     />
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-600">Cancer type</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g., oral, throat..."
-                      value={riskFactors.familyCancer.cancerType || ''}
-                      onChange={e => setRiskFactors({ ...riskFactors, familyCancer: { ...riskFactors.familyCancer, cancerType: e.target.value } })}
-                    />
-                  </div>
                 </div>
               )}
             </div>
 
-            {/* Additional */}
-            <div className="card space-y-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={riskFactors.immunosuppression || false}
-                  onChange={e => setRiskFactors({ ...riskFactors, immunosuppression: e.target.checked })}
-                  className="w-5 h-5 rounded"
-                />
-                <span className="text-sm font-medium">Immunosuppression</span>
-              </label>
-              {riskFactors.immunosuppression && (
-                <textarea
-                  className="form-input"
-                  rows={2}
-                  placeholder="Notes..."
-                  value={riskFactors.immunosuppressionNotes || ''}
-                  onChange={e => setRiskFactors({ ...riskFactors, immunosuppressionNotes: e.target.value })}
-                />
-              )}
+            {/* Other Risk Factors */}
+            <div className="card space-y-3">
+              <label className="form-label">⚕️ Other Risk Factors</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50">
+                  <input
+                    type="checkbox"
+                    checked={riskFactors.type2Diabetes || false}
+                    onChange={e => setRiskFactors({ ...riskFactors, type2Diabetes: e.target.checked })}
+                    className="w-5 h-5 rounded"
+                  />
+                  <span className="text-sm">Type 2 Diabetes</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50">
+                  <input
+                    type="checkbox"
+                    checked={riskFactors.obesity || false}
+                    onChange={e => setRiskFactors({ ...riskFactors, obesity: e.target.checked })}
+                    className="w-5 h-5 rounded"
+                  />
+                  <span className="text-sm">Obesity</span>
+                </label>
+              </div>
               <div>
-                <label className="text-xs text-gray-600">Other risk factors / notes</label>
+                <label className="text-xs text-gray-600">Comments / Notes</label>
                 <textarea
                   className="form-input"
-                  rows={2}
+                  rows={3}
+                  placeholder="Any additional risk factors or notes..."
                   value={riskFactors.otherRiskFactors || ''}
                   onChange={e => setRiskFactors({ ...riskFactors, otherRiskFactors: e.target.value })}
                 />
@@ -1449,9 +1433,12 @@ export default function App() {
               <div className="text-sm font-semibold mb-1">Risk Factors</div>
               <div className="text-sm space-y-1">
                 <div>Tobacco: {riskFactors.tobacco.status}</div>
-                <div>Areca/Betel: {riskFactors.arecaBetel.status}</div>
+                <div>Kouben: {riskFactors.arecaBetel.status}</div>
                 <div>Alcohol: {riskFactors.alcohol.status}</div>
                 <div>Family cancer: {riskFactors.familyCancer.present}</div>
+                {riskFactors.type2Diabetes && <div>✓ Type 2 Diabetes</div>}
+                {riskFactors.obesity && <div>✓ Obesity</div>}
+                {riskFactors.otherRiskFactors && <div className="text-xs text-gray-600">Notes: {riskFactors.otherRiskFactors}</div>}
               </div>
             </div>
 

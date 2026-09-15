@@ -13,29 +13,29 @@ interface ToothChartProps {
 }
 
 // Status options for permanent teeth
-const PERMANENT_STATUS_OPTIONS: { value: PermanentToothStatus; label: string; color: string }[] = [
-  { value: 'sound', label: 'Sound', color: 'bg-white border-gray-300' },
-  { value: 'decayed', label: 'Decayed (D)', color: 'bg-red-100 border-red-500' },
-  { value: 'filled_decay', label: 'Filled w/ decay (D)', color: 'bg-red-200 border-red-600' },
-  { value: 'filled', label: 'Filled (F)', color: 'bg-blue-100 border-blue-500' },
-  { value: 'missing_caries', label: 'Missing-caries (M)', color: 'bg-gray-400 border-gray-600' },
-  { value: 'missing_other', label: 'Missing-other', color: 'bg-gray-300 border-gray-400' },
-  { value: 'excluded', label: 'Excluded', color: 'bg-gray-100 border-gray-200' },
-  { value: 'not_recorded', label: 'Not recorded', color: 'bg-yellow-50 border-yellow-300' },
+const PERMANENT_STATUS_OPTIONS: { value: PermanentToothStatus; label: string }[] = [
+  { value: 'not_recorded', label: '— Not recorded —' },
+  { value: 'sound', label: 'Sound (healthy)' },
+  { value: 'decayed', label: 'Decayed (D)' },
+  { value: 'filled_decay', label: 'Filled with decay (D)' },
+  { value: 'filled', label: 'Filled, no decay (F)' },
+  { value: 'missing_caries', label: 'Missing due to caries (M)' },
+  { value: 'missing_other', label: 'Missing — other reason' },
+  { value: 'excluded', label: 'Excluded' },
 ];
 
 // Status options for primary teeth
-const PRIMARY_STATUS_OPTIONS: { value: PrimaryToothStatus; label: string; color: string }[] = [
-  { value: 'sound', label: 'Sound', color: 'bg-white border-gray-300' },
-  { value: 'decayed', label: 'Decayed (d)', color: 'bg-red-100 border-red-500' },
-  { value: 'filled_decay', label: 'Filled w/ decay (d)', color: 'bg-red-200 border-red-600' },
-  { value: 'filled', label: 'Filled (f)', color: 'bg-blue-100 border-blue-500' },
-  { value: 'missing_caries', label: 'Missing-caries (m)', color: 'bg-gray-400 border-gray-600' },
-  { value: 'extracted_caries', label: 'Extracted-caries (e)', color: 'bg-gray-500 border-gray-700' },
-  { value: 'missing_other', label: 'Missing-other', color: 'bg-gray-300 border-gray-400' },
-  { value: 'extracted_other', label: 'Extracted-other', color: 'bg-gray-200 border-gray-300' },
-  { value: 'excluded', label: 'Excluded', color: 'bg-gray-100 border-gray-200' },
-  { value: 'not_recorded', label: 'Not recorded', color: 'bg-yellow-50 border-yellow-300' },
+const PRIMARY_STATUS_OPTIONS: { value: PrimaryToothStatus; label: string }[] = [
+  { value: 'not_recorded', label: '— Not recorded —' },
+  { value: 'sound', label: 'Sound (healthy)' },
+  { value: 'decayed', label: 'Decayed (d)' },
+  { value: 'filled_decay', label: 'Filled with decay (d)' },
+  { value: 'filled', label: 'Filled, no decay (f)' },
+  { value: 'missing_caries', label: 'Missing due to caries (m)' },
+  { value: 'extracted_caries', label: 'Extracted due to caries (e)' },
+  { value: 'missing_other', label: 'Missing — other reason' },
+  { value: 'extracted_other', label: 'Extracted — other reason' },
+  { value: 'excluded', label: 'Excluded' },
 ];
 
 function getToothStatusClass(status: PermanentToothStatus | PrimaryToothStatus): string {
@@ -62,35 +62,23 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
   const getFinding = (code: string) => findings.find(f => f.toothCode === code);
 
   // Organize teeth into quadrants for DISPLAY (viewer's perspective looking at patient)
-  // Standard dental chart layout:
-  //   Upper: [18 17 16 15 14 13 12 11] | [21 22 23 24 25 26 27 28]
-  //   Lower: [48 47 46 45 44 43 42 41] | [31 32 33 34 35 36 37 38]
-  //
-  // Viewer's LEFT = Patient's RIGHT
-  // Viewer's RIGHT = Patient's LEFT
-
   const getQuadrant = (teethList: string[], start: number, end: number) =>
     teethList.filter(t => {
       const num = parseInt(t);
       return num >= start && num <= end;
     });
 
-  // For display, we need:
-  // upperLeft (viewer's left, patient's right Q1): reversed 11-18 → 18,17,...,11
-  // upperRight (viewer's right, patient's left Q2): 21-28 as is
-  // lowerLeft (viewer's left, patient's right Q4): reversed 41-48 → 48,47,...,41
-  // lowerRight (viewer's right, patient's left Q3): 31-38 as is
   let upperLeft: string[], upperRight: string[], lowerLeft: string[], lowerRight: string[];
   if (dentition === 'permanent') {
-    upperLeft = getQuadrant(teeth, 11, 18).reverse();  // 18,17,16,15,14,13,12,11
-    upperRight = getQuadrant(teeth, 21, 28);            // 21,22,23,24,25,26,27,28
-    lowerLeft = getQuadrant(teeth, 41, 48).reverse();   // 48,47,46,45,44,43,42,41
-    lowerRight = getQuadrant(teeth, 31, 38);            // 31,32,33,34,35,36,37,38
+    upperLeft = getQuadrant(teeth, 11, 18).reverse();  // 18,17,...,11
+    upperRight = getQuadrant(teeth, 21, 28);            // 21,22,...,28
+    lowerLeft = getQuadrant(teeth, 41, 48).reverse();   // 48,47,...,41
+    lowerRight = getQuadrant(teeth, 31, 38);            // 31,32,...,38
   } else {
-    upperLeft = getQuadrant(teeth, 51, 55).reverse();   // 55,54,53,52,51
-    upperRight = getQuadrant(teeth, 61, 65);            // 61,62,63,64,65
-    lowerLeft = getQuadrant(teeth, 81, 85).reverse();   // 85,84,83,82,81
-    lowerRight = getQuadrant(teeth, 71, 75);            // 71,72,73,74,75
+    upperLeft = getQuadrant(teeth, 51, 55).reverse();   // 55,54,...,51
+    upperRight = getQuadrant(teeth, 61, 65);            // 61,62,...,65
+    lowerLeft = getQuadrant(teeth, 81, 85).reverse();   // 85,84,...,81
+    lowerRight = getQuadrant(teeth, 71, 75);            // 71,72,...,75
   }
 
   const renderToothButton = (code: string) => {
@@ -112,67 +100,73 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
     );
   };
 
-  const renderQuadrant = (teethList: string[]) => (
-    <div className="flex gap-0.5 sm:gap-1">
-      {teethList.map(renderToothButton)}
+  const renderQuadrant = (teethList: string[], label: string) => (
+    <div className="flex flex-col items-center">
+      <div className="text-[10px] text-gray-400 mb-1">{label}</div>
+      <div className="flex gap-0.5 sm:gap-1">
+        {teethList.map(renderToothButton)}
+      </div>
     </div>
   );
+
+  const currentFinding = selectedTooth ? getFinding(selectedTooth) : null;
+  const currentStatus = currentFinding?.status || 'not_recorded';
 
   return (
     <div className="space-y-3">
       {/* Tooth chart */}
       <div className="card p-3">
-        <div className="text-xs text-gray-500 mb-2 text-center">
+        <div className="text-xs text-gray-500 mb-3 text-center">
           {dentition === 'permanent' ? 'Permanent Dentition (32 teeth)' : 'Primary Dentition (20 teeth)'}
         </div>
 
-        {/* Upper arch — viewer's perspective looking at patient */}
-        <div className="flex justify-center gap-3 sm:gap-4 mb-2">
-          {renderQuadrant(upperLeft)}  {/* Viewer's left = Patient's upper right (Q1: 18→11) */}
-          <div className="w-px bg-gray-300" />
-          {renderQuadrant(upperRight)} {/* Viewer's right = Patient's upper left (Q2: 21→28) */}
+        {/* Upper arch — stacked quadrants */}
+        <div className="space-y-2 mb-3">
+          <div className="text-[10px] text-gray-400 text-center uppercase tracking-wide">Upper Arch</div>
+          {renderQuadrant(upperLeft, dentition === 'permanent' ? 'Upper Right (18→11)' : 'Upper Right (55→51)')}
+          {renderQuadrant(upperRight, dentition === 'permanent' ? 'Upper Left (21→28)' : 'Upper Left (61→65)')}
         </div>
 
-        {/* Midline */}
-        <div className="border-t border-b border-gray-300 py-1 text-center text-xs text-gray-400">
-          ← Patient's Right | Patient's Left →
-        </div>
+        {/* Midline divider */}
+        <div className="border-t-2 border-dashed border-gray-300 my-2" />
 
-        {/* Lower arch — viewer's perspective looking at patient */}
-        <div className="flex justify-center gap-3 sm:gap-4 mt-2">
-          {renderQuadrant(lowerLeft)}  {/* Viewer's left = Patient's lower right (Q4: 48→41) */}
-          <div className="w-px bg-gray-300" />
-          {renderQuadrant(lowerRight)} {/* Viewer's right = Patient's lower left (Q3: 31→38) */}
+        {/* Lower arch — stacked quadrants */}
+        <div className="space-y-2">
+          <div className="text-[10px] text-gray-400 text-center uppercase tracking-wide">Lower Arch</div>
+          {renderQuadrant(lowerLeft, dentition === 'permanent' ? 'Lower Right (48→41)' : 'Lower Right (85→81)')}
+          {renderQuadrant(lowerRight, dentition === 'permanent' ? 'Lower Left (31→38)' : 'Lower Left (71→75)')}
         </div>
       </div>
 
-      {/* Status selector for selected tooth */}
+      {/* Status selector — DROPDOWN for mobile/tablet */}
       {selectedTooth && (
         <div className="card p-3">
-          <div className="font-semibold text-sm mb-2">
-            Tooth {selectedTooth} — Select Status:
+          <div className="flex items-center justify-between mb-2">
+            <div className="font-semibold text-sm">
+              Tooth {selectedTooth}
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedTooth(null)}
+              className="text-xs text-gray-500 underline"
+            >
+              Close
+            </button>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {statusOptions.map(opt => {
-              const finding = getFinding(selectedTooth);
-              const isActive = finding?.status === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => {
-                    onToothClick(selectedTooth, opt.value);
-                  }}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium border-2 text-left
-                    ${isActive
-                      ? 'border-[#0066cc] bg-[#e6f0ff] text-[#0066cc]'
-                      : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
+          <label className="form-label">Select Status</label>
+          <select
+            className="form-select"
+            value={currentStatus}
+            onChange={e => {
+              onToothClick(selectedTooth, e.target.value as PermanentToothStatus | PrimaryToothStatus);
+            }}
+          >
+            {statusOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+          <div className="mt-2 text-xs text-gray-500">
+            Tap another tooth to change selection, or tap "Close" to dismiss.
           </div>
         </div>
       )}
@@ -180,19 +174,19 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
       {/* Legend */}
       <div className="flex flex-wrap gap-2 text-xs">
         <span className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded border bg-white border-gray-300" /> Sound
+          <span className="w-4 h-4 rounded border bg-white border-gray-300 inline-block" /> Sound
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded border bg-red-100 border-red-500" /> Decayed
+          <span className="w-4 h-4 rounded border bg-red-100 border-red-500 inline-block" /> Decayed
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded border bg-blue-100 border-blue-500" /> Filled
+          <span className="w-4 h-4 rounded border bg-blue-100 border-blue-500 inline-block" /> Filled
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded border bg-gray-500 border-gray-700" /> Missing (caries)
+          <span className="w-4 h-4 rounded border bg-gray-500 border-gray-700 inline-block" /> Missing (caries)
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded border bg-gray-300 border-gray-400" /> Missing (other)
+          <span className="w-4 h-4 rounded border bg-gray-300 border-gray-400 inline-block" /> Missing (other)
         </span>
       </div>
     </div>

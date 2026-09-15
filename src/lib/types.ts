@@ -156,9 +156,8 @@ export interface RiskFactors {
   arecaBetel: ArecaBetelRisk;
   alcohol: AlcoholRisk;
   familyCancer: FamilyCancerRisk;
-  immunosuppression?: boolean;
-  immunosuppressionNotes?: string;
-  hpvHistory?: string;
+  type2Diabetes?: boolean;
+  obesity?: boolean;
   otherRiskFactors?: string;
 }
 

@@ -9,30 +9,22 @@ import type { Island } from './types';
 // Based on Kiribati island groups
 
 export const ISLANDS: Island[] = [
-  // Gilbert Islands
-  { islandId: 'KIR-TW', name: 'Tarawa' },
   { islandId: 'KIR-AB', name: 'Abaiang' },
-  { islandId: 'KIR-AM', name: 'Amau' },
-  { islandId: 'KIR-AN', name: 'Anaura' },
+  { islandId: 'KIR-AE', name: 'Abemama' },
   { islandId: 'KIR-AR', name: 'Aranuka' },
-  { islandId: 'KIR-BO', name: 'Beru' },
+  { islandId: 'KIR-AO', name: 'Arorae' },
+  { islandId: 'KIR-BN', name: 'Banaba (Ocean Island)' },
+  { islandId: 'KIR-BR', name: 'Beru' },
   { islandId: 'KIR-BT', name: 'Butaritari' },
   { islandId: 'KIR-KU', name: 'Kuria' },
   { islandId: 'KIR-MI', name: 'Maiana' },
-  { islandId: 'KIR-MN', name: 'Manea' },
-  { islandId: 'KIR-MK', name: 'Makin' },
-  { islandId: 'KIR-MR', name: 'Marakei' },
+  { islandId: 'KIR-MK', name: 'Marakei' },
   { islandId: 'KIR-NI', name: 'Nikunau' },
   { islandId: 'KIR-NO', name: 'Nonouti' },
   { islandId: 'KIR-ON', name: 'Onotoa' },
+  { islandId: 'KIR-TB', name: 'Tabiteuea' },
   { islandId: 'KIR-TM', name: 'Tamana' },
-  { islandId: 'KIR-AB2', name: 'Abemama' },
-  // Line Islands
-  { islandId: 'KIR-CE', name: 'Christmas Island (Kiritimati)' },
-  { islandId: 'KIR-FL', name: 'Flint Island' },
-  { islandId: 'KIR-WA', name: 'Washington Island (Teraina)' },
-  // Phoenix Islands
-  { islandId: 'KIR-CA', name: 'Canton (Kanton)' },
+  { islandId: 'KIR-TW', name: 'Tarawa' },
 ];
 
 // ============================================================

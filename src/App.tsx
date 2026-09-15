@@ -48,6 +48,7 @@ import {
 import type { ScreeningEvent } from './lib/types';
 import ToothChart from './components/ToothChart';
 import EventManager from './components/EventManager';
+import SetupScreen from './components/SetupScreen';
 
 // ============================================================
 // WIZARD STEPS
@@ -127,6 +128,9 @@ export default function App() {
 
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Setup
+  const [needsSetup, setNeedsSetup] = useState(!localStorage.getItem('mhms_backend_url'));
 
   // ============================================================
   // INITIALIZATION
@@ -427,10 +431,26 @@ export default function App() {
 
   async function handleSync() {
     if (syncing) return;
+    
+    // Check if backend URL is configured
+    const backendUrl = localStorage.getItem('mhms_backend_url');
+    if (!backendUrl) {
+      alert('Backend URL not configured. Please go to Settings to configure it.');
+      return;
+    }
+    
     setSyncing(true);
     try {
-      await processSyncQueue();
+      const result = await processSyncQueue();
       await updateSyncSummary();
+      
+      // Show result message
+      if (result.failed > 0) {
+        console.warn(`Sync completed with ${result.failed} failures`);
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      alert('Sync failed. Check your connection and backend URL in Settings.');
     } finally {
       setSyncing(false);
     }
@@ -515,6 +535,12 @@ export default function App() {
   // ============================================================
   // RENDER
   // ============================================================
+  
+  // Show setup screen if backend URL is not configured
+  if (needsSetup) {
+    return <SetupScreen onComplete={() => setNeedsSetup(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -586,6 +612,12 @@ export default function App() {
               className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm disabled:opacity-50"
             >
               🔄 Sync Now
+            </button>
+            <button
+              onClick={() => { setNeedsSetup(true); setShowMenu(false); }}
+              className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm"
+            >
+              ⚙️ Settings
             </button>
             <hr className="my-1" />
             <div className="px-3 py-1 text-xs text-gray-500">

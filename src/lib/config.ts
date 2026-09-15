@@ -1,14 +1,12 @@
 // MHMS Oral Screening - Configuration
 // Reference data for Kiribati geographic hierarchy and application settings
 
-import type { Island, Village } from './types';
+import type { Island } from './types';
 
 // ============================================================
 // KIRIBATI GEOGRAPHIC DATA
 // ============================================================
-// Based on Kiribati island groups. Village data should be maintained
-// by MHMS administrators. This is a starter set.
-// CONFIGURATION REQUIRED: Complete village lists need MHMS input
+// Based on Kiribati island groups
 
 export const ISLANDS: Island[] = [
   // Gilbert Islands
@@ -36,38 +34,6 @@ export const ISLANDS: Island[] = [
   // Phoenix Islands
   { islandId: 'KIR-CA', name: 'Canton (Kanton)' },
 ];
-
-// Villages by island - starter data, CONFIGURATION REQUIRED
-export const VILLAGES: Village[] = [
-  // Tarawa (South Tarawa - most populated)
-  { villageId: 'VIL-BT', islandId: 'KIR-TW', name: 'Betio' },
-  { villageId: 'VIL-BK', islandId: 'KIR-TW', name: 'Bikenibeu' },
-  { villageId: 'VIL-TE', islandId: 'KIR-TW', name: 'Teaoraereke' },
-  { villageId: 'VIL-BA', islandId: 'KIR-TW', name: 'Bairiki' },
-  { villageId: 'VIL-BO', islandId: 'KIR-TW', name: 'Bonriki' },
-  { villageId: 'VIL-EW', islandId: 'KIR-TW', name: 'Eita' },
-  { villageId: 'VIL-AM', islandId: 'KIR-TW', name: 'Ammama' },
-  { villageId: 'VIL-TB', islandId: 'KIR-TW', name: 'Tabonibara' },
-  { villageId: 'VIL-NA', islandId: 'KIR-TW', name: 'Nawerewere' },
-  // Christmas Island
-  { villageId: 'VIL-LN', islandId: 'KIR-CE', name: 'London' },
-  { villageId: 'VIL-PB', islandId: 'KIR-CE', name: 'Poland' },
-  { villageId: 'VIL-WA', islandId: 'KIR-CE', name: 'Wales' },
-  // Butaritari
-  { villageId: 'VIL-UM', islandId: 'KIR-BT', name: 'Ukiangang' },
-  { villageId: 'VIL-TK', islandId: 'KIR-BT', name: 'Tanimaiaki' },
-  // Abaiang
-  { villageId: 'VIL-TU', islandId: 'KIR-AB', name: 'Tubou' },
-  { villageId: 'VIL-BU', islandId: 'KIR-AB', name: 'Buota' },
-  // Add more as needed - administrators can update via admin panel
-];
-
-/**
- * Get villages for a given island
- */
-export function getVillagesForIsland(islandId: string): Village[] {
-  return VILLAGES.filter(v => v.islandId === islandId);
-}
 
 // ============================================================
 // APPLICATION CONFIGURATION

@@ -19,7 +19,7 @@ import type {
   PrimaryToothStatus,
 } from './lib/types';
 import { calculateDMFT, calculatedmft, calculateAge, getSextantName, PERMANENT_TEETH, PRIMARY_TEETH } from './lib/clinical';
-import { ISLANDS, VILLAGES, getVillagesForIsland, APP_CONFIG } from './lib/config';
+import { ISLANDS, APP_CONFIG } from './lib/config';
 import {
   generateClientSubmissionId,
   generateLocalPatientId,
@@ -279,7 +279,6 @@ export default function App() {
           dateOfBirth: patientForm.dateOfBirth || '',
           sex: patientForm.sex || 'male',
           islandId: patientForm.islandId || '',
-          villageId: patientForm.villageId || '',
           phone: patientForm.phone,
           notes: patientForm.notes,
           createdAt: new Date().toISOString(),
@@ -754,7 +753,7 @@ export default function App() {
                   <select
                     className="form-select"
                     value={patientForm.islandId || ''}
-                    onChange={e => setPatientForm({ ...patientForm, islandId: e.target.value, villageId: '' })}
+                    onChange={e => setPatientForm({ ...patientForm, islandId: e.target.value })}
                   >
                     <option value="">Select island...</option>
                     {ISLANDS.map(i => (
@@ -762,24 +761,6 @@ export default function App() {
                     ))}
                   </select>
                   {errors.islandId && <p className="text-red-600 text-xs mt-1">{errors.islandId}</p>}
-                </div>
-                <div>
-                  <label className="form-label">Village *</label>
-                  <select
-                    className="form-select"
-                    value={patientForm.villageId || ''}
-                    onChange={e => setPatientForm({ ...patientForm, villageId: e.target.value })}
-                    disabled={!patientForm.islandId}
-                  >
-                    <option value="">Select village...</option>
-                    {patientForm.islandId && getVillagesForIsland(patientForm.islandId).map(v => (
-                      <option key={v.villageId} value={v.villageId}>{v.name}</option>
-                    ))}
-                  </select>
-                  {errors.villageId && <p className="text-red-600 text-xs mt-1">{errors.villageId}</p>}
-                  {patientForm.islandId && getVillagesForIsland(patientForm.islandId).length === 0 && (
-                    <p className="text-yellow-600 text-xs mt-1">No villages configured for this island. Contact admin.</p>
-                  )}
                 </div>
                 <div>
                   <label className="form-label">Phone (optional)</label>
@@ -793,7 +774,7 @@ export default function App() {
                 <button
                   onClick={() => { setIsNewPatient(false); setSelectedPatient({ ...patientForm, patientId: 'pending' } as Patient); }}
                   className="btn-primary w-full"
-                  disabled={!patientForm.firstName || !patientForm.lastName || !patientForm.dateOfBirth || !patientForm.islandId || !patientForm.villageId}
+                  disabled={!patientForm.firstName || !patientForm.lastName || !patientForm.dateOfBirth || !patientForm.islandId}
                 >
                   Continue with this patient
                 </button>

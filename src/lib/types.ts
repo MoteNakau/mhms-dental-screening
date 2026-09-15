@@ -11,7 +11,6 @@ export interface Patient {
   dateOfBirth: string; // ISO date
   sex: 'male' | 'female' | 'other' | 'unknown';
   islandId: string;
-  villageId: string;
   phone?: string;
   notes?: string;
   createdAt: string;
@@ -243,12 +242,6 @@ export interface Referral {
 // REFERENCE DATA
 // ============================================================
 export interface Island {
-  islandId: string;
-  name: string;
-}
-
-export interface Village {
-  villageId: string;
   islandId: string;
   name: string;
 }

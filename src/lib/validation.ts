@@ -97,10 +97,6 @@ export function validatePatient(patient: Partial<Patient>): ValidationResult {
     errors.push({ field: 'islandId', message: 'Island is required', severity: 'error' });
   }
 
-  if (!patient.villageId) {
-    errors.push({ field: 'villageId', message: 'Village is required', severity: 'error' });
-  }
-
   // Name length validation
   if (patient.firstName && patient.firstName.length > 100) {
     errors.push({ field: 'firstName', message: 'First name is too long', severity: 'error' });

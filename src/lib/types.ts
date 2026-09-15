@@ -47,8 +47,7 @@ export type PermanentToothStatus =
   | 'filled'       // Filled, no caries (F)
   | 'missing_caries' // Missing due to caries (M) - age-dependent
   | 'missing_other'  // Missing for other reason (not counted in M)
-  | 'excluded'     // Tooth excluded (e.g. congenitally missing, orthodontic extraction)
-  | 'not_recorded'; // Not examined
+  | 'not_recorded'; // Not examined or excluded
 
 // WHO 5th edition caries codes for primary teeth
 export type PrimaryToothStatus =
@@ -58,8 +57,7 @@ export type PrimaryToothStatus =
   | 'filled'         // Filled, no caries (f)
   | 'missing_caries' // Missing due to caries (m)
   | 'missing_other'  // Missing for other reason
-  | 'excluded'
-  | 'not_recorded'
+  | 'not_recorded'   // Not examined or excluded
   | 'extracted_caries' // Extracted due to caries (for primary - specific to WHO)
   | 'extracted_other'; // Extracted for other reason
 

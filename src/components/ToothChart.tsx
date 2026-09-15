@@ -12,53 +12,47 @@ interface ToothChartProps {
   onToothClick: (toothCode: string, status: PermanentToothStatus | PrimaryToothStatus) => void;
 }
 
-// Status options with clarifying questions
+// Status options
 const PERMANENT_STATUS_OPTIONS: { 
   value: PermanentToothStatus; 
   label: string; 
-  question: string;
+  question?: string;
   color: string;
 }[] = [
   { 
     value: 'sound', 
     label: 'Sound (healthy)',
-    question: 'Is this tooth completely healthy with no caries, fillings, or restorations?',
     color: 'bg-white border-gray-300'
   },
   { 
     value: 'decayed', 
     label: 'Decayed (D)',
-    question: 'Is there visible caries (cavitation, soft enamel, or dentin)?',
     color: 'bg-red-100 border-red-500'
   },
   { 
     value: 'filled_decay', 
     label: 'Filled with decay (D)',
-    question: 'Does this tooth have a filling AND secondary caries?',
     color: 'bg-red-200 border-red-600'
   },
   { 
     value: 'filled', 
     label: 'Filled, no decay (F)',
-    question: 'Does this tooth have a filling with NO caries present?',
     color: 'bg-blue-100 border-blue-500'
   },
   { 
     value: 'missing_caries', 
     label: 'Missing due to caries (M)',
-    question: 'Was this tooth extracted or missing BECAUSE OF CARIES?',
     color: 'bg-gray-400 border-gray-600'
   },
   { 
     value: 'missing_other', 
     label: 'Missing — other reason',
-    question: 'Is this tooth missing for a reason OTHER than caries? (e.g., trauma, orthodontic, congenital)',
     color: 'bg-gray-300 border-gray-400'
   },
   { 
-    value: 'excluded', 
-    label: 'Excluded',
-    question: 'Should this tooth be excluded from the examination? (e.g., not erupted, orthodontic extraction, crown/bridge abutment)',
+    value: 'not_recorded', 
+    label: 'Not recorded',
+    question: 'This tooth was not examined or its status is unknown.',
     color: 'bg-gray-100 border-gray-200'
   },
 ];
@@ -66,61 +60,53 @@ const PERMANENT_STATUS_OPTIONS: {
 const PRIMARY_STATUS_OPTIONS: { 
   value: PrimaryToothStatus; 
   label: string; 
-  question: string;
+  question?: string;
   color: string;
 }[] = [
   { 
     value: 'sound', 
     label: 'Sound (healthy)',
-    question: 'Is this tooth completely healthy with no caries, fillings, or restorations?',
     color: 'bg-white border-gray-300'
   },
   { 
     value: 'decayed', 
     label: 'Decayed (d)',
-    question: 'Is there visible caries (cavitation, soft enamel, or dentin)?',
     color: 'bg-red-100 border-red-500'
   },
   { 
     value: 'filled_decay', 
     label: 'Filled with decay (d)',
-    question: 'Does this tooth have a filling AND secondary caries?',
     color: 'bg-red-200 border-red-600'
   },
   { 
     value: 'filled', 
     label: 'Filled, no decay (f)',
-    question: 'Does this tooth have a filling with NO caries present?',
     color: 'bg-blue-100 border-blue-500'
   },
   { 
     value: 'missing_caries', 
     label: 'Missing due to caries (m)',
-    question: 'Was this tooth missing BECAUSE OF CARIES?',
     color: 'bg-gray-400 border-gray-600'
   },
   { 
     value: 'extracted_caries', 
     label: 'Extracted due to caries (e)',
-    question: 'Was this tooth extracted BECAUSE OF CARIES?',
     color: 'bg-gray-500 border-gray-700'
   },
   { 
     value: 'missing_other', 
     label: 'Missing — other reason',
-    question: 'Is this tooth missing for a reason OTHER than caries?',
     color: 'bg-gray-300 border-gray-400'
   },
   { 
     value: 'extracted_other', 
     label: 'Extracted — other reason',
-    question: 'Was this tooth extracted for a reason OTHER than caries? (e.g., trauma, orthodontic)',
     color: 'bg-gray-200 border-gray-300'
   },
   { 
-    value: 'excluded', 
-    label: 'Excluded',
-    question: 'Should this tooth be excluded from the examination? (e.g., not erupted, exfoliating)',
+    value: 'not_recorded', 
+    label: 'Not recorded',
+    question: 'This tooth was not examined or its status is unknown.',
     color: 'bg-gray-100 border-gray-200'
   },
 ];
@@ -135,8 +121,7 @@ function getToothStatusClass(status: PermanentToothStatus | PrimaryToothStatus):
     case 'extracted_caries': return 'bg-gray-500 border-gray-700 text-white';
     case 'missing_other':
     case 'extracted_other': return 'bg-gray-300 border-gray-400 text-gray-600';
-    case 'excluded': return 'bg-gray-100 border-gray-200 text-gray-400';
-    case 'not_recorded': return 'bg-yellow-50 border-yellow-300 text-yellow-700';
+    case 'not_recorded': return 'bg-gray-100 border-gray-200 text-gray-400';
     default: return 'bg-white border-gray-300 text-gray-700';
   }
 }
@@ -272,21 +257,13 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
                         : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                   >
-                    <div className="font-semibold text-sm mb-1">{option.label}</div>
-                    <div className="text-xs text-gray-600">{option.question}</div>
+                    <div className="font-semibold text-sm">{option.label}</div>
+                    {option.question && (
+                      <div className="text-xs text-gray-600 mt-1">{option.question}</div>
+                    )}
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 border-t bg-gray-50">
-              <button
-                onClick={() => setSelectedTooth(null)}
-                className="btn-secondary w-full"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </div>

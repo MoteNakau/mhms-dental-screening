@@ -83,8 +83,8 @@ export function calculateDMFT(
   for (const finding of permanentFindings) {
     const status = finding.status as PermanentToothStatus;
 
-    // Skip excluded and not recorded
-    if (status === 'excluded' || status === 'not_recorded') {
+    // Skip not recorded
+    if (status === 'not_recorded') {
       continue;
     }
 
@@ -148,7 +148,7 @@ export function calculatedmft(findings: ToothFinding[]): DMFTResult {
   for (const finding of primaryFindings) {
     const status = finding.status as PrimaryToothStatus;
 
-    if (status === 'excluded' || status === 'not_recorded') {
+    if (status === 'not_recorded') {
       continue;
     }
 

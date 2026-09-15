@@ -391,11 +391,24 @@ export default function App() {
           createdAt: new Date().toISOString(),
         };
         await savePhoto(photoRecord as any);
+        
+        // Add patient information for photo labeling
+        const patientAge = selectedPatient?.dateOfBirth 
+          ? calculateAge(selectedPatient.dateOfBirth, screeningDate)
+          : 0;
+        
         await addToSyncQueue({
           localId: photoSubmissionId,
           clientSubmissionId: photoSubmissionId,
           type: 'photo',
-          payload: { ...photoRecord, dataUrl: await fileToDataUrl(photo) },
+          payload: { 
+            ...photoRecord, 
+            dataUrl: await fileToDataUrl(photo),
+            patientFirstName: selectedPatient?.firstName || '',
+            patientLastName: selectedPatient?.lastName || '',
+            patientAge: patientAge,
+            patientSex: selectedPatient?.sex || '',
+          },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           retryCount: 0,

@@ -5,8 +5,8 @@
 
 // Configuration
 var CONFIG = {
-  SPREADSHEET_ID: '', // Add your Google Sheet ID here
-  PHOTO_FOLDER_ID: '', // Add your Drive folder ID here
+  SPREADSHEET_ID: '1vK8Vc1VpDZstwUoXicPTNY7pwk_8hITPUsnyVRVK1V8',
+  PHOTO_FOLDER_ID: '1kLKMCsErr4E9aZA_KkRbAgZOcUK5hlws',
   ALLOW_ANY_AUTHENTICATED_USER: true // Set to false for production
 };
 
@@ -233,15 +233,45 @@ function syncPhoto(body, userEmail) {
       }, 500);
     }
     
+    if (!payload.screeningId || !payload.dataUrl) {
+      return jsonResponse({ 
+        success: false, 
+        error: 'Missing photo data' 
+      }, 400);
+    }
+    
     // Generate photo ID
     var photoId = 'PHO-' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
     
-    // For now, just return success without actually uploading
-    // Photo upload requires more complex handling
+    // Create patient label for filename (e.g., "MoteNakauM/44")
+    var patientLabel = photoId; // Default to photo ID if patient info not available
+    if (payload.patientFirstName && payload.patientLastName && payload.patientAge && payload.patientSex) {
+      // Format: FirstNameLastNameSex/Age (e.g., "MoteNakauM/44")
+      var firstName = payload.patientFirstName.replace(/\s+/g, '');
+      var lastName = payload.patientLastName.replace(/\s+/g, '');
+      var sex = payload.patientSex.charAt(0).toUpperCase();
+      patientLabel = firstName + lastName + sex + '/' + payload.patientAge;
+    }
+    
+    // Upload to Google Drive
+    var imageData = payload.dataUrl.split(',')[1];
+    var fileName = patientLabel + '.jpg';
+    var blob = Utilities.newBlob(Utilities.base64Decode(imageData), payload.mimeType || 'image/jpeg', fileName);
+    
+    var folder = DriveApp.getFolderById(CONFIG.PHOTO_FOLDER_ID);
+    var file = folder.createFile(blob);
+    
+    // Ensure file is PRIVATE
+    file.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+    
+    var driveFileId = file.getId();
+    
     return jsonResponse({ 
       success: true, 
       photoId: photoId,
-      message: 'Photo metadata saved (upload not implemented in simplified version)'
+      driveFileId: driveFileId,
+      fileName: fileName,
+      message: 'Photo uploaded successfully'
     });
     
   } catch (error) {

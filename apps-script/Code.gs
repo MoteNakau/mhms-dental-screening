@@ -21,10 +21,10 @@
 // ============================================================
 const CONFIG = {
   // Spreadsheet ID - set after creating the Google Sheet
-  SPREADSHEET_ID: '', // SET THIS
+  SPREADSHEET_ID: '1vK8Vc1VpDZstwUoXicPTNY7pwk_8hITPUsnyVRVK1V8',
 
   // Drive folder for clinical photographs - PRIVATE
-  PHOTO_FOLDER_ID: '', // SET THIS
+  PHOTO_FOLDER_ID: '1kLKMCsErr4E9aZA_KkRbAgZOcUK5hlws',
 
   // Authorized users (email addresses)
   // Authorization MUST be enforced server-side
@@ -406,11 +406,22 @@ function syncPhoto(body, userEmail) {
   // Generate photo ID
   const photoId = generatePhotoId();
 
+  // Create patient label for filename (e.g., "MoteNakauM/44")
+  let patientLabel = photoId; // Default to photo ID if patient info not available
+  if (payload.patientFirstName && payload.patientLastName && payload.patientAge && payload.patientSex) {
+    // Format: FirstNameLastNameSex/Age (e.g., "MoteNakauM/44")
+    const firstName = payload.patientFirstName.replace(/\s+/g, '');
+    const lastName = payload.patientLastName.replace(/\s+/g, '');
+    const sex = payload.patientSex.charAt(0).toUpperCase();
+    patientLabel = firstName + lastName + sex + '/' + payload.patientAge;
+  }
+
   // Upload to Google Drive (PRIVATE folder)
   let driveFileId = '';
   try {
     const imageData = payload.dataUrl.split(',')[1];
-    const blob = Utilities.newBlob(Utilities.base64Decode(imageData), payload.mimeType || 'image/jpeg', photoId + '.jpg');
+    const fileName = patientLabel + '.jpg';
+    const blob = Utilities.newBlob(Utilities.base64Decode(imageData), payload.mimeType || 'image/jpeg', fileName);
 
     const folder = DriveApp.getFolderById(CONFIG.PHOTO_FOLDER_ID);
     const file = folder.createFile(blob);

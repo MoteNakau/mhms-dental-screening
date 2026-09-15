@@ -12,30 +12,117 @@ interface ToothChartProps {
   onToothClick: (toothCode: string, status: PermanentToothStatus | PrimaryToothStatus) => void;
 }
 
-// Status options for permanent teeth
-const PERMANENT_STATUS_OPTIONS: { value: PermanentToothStatus; label: string }[] = [
-  { value: 'not_recorded', label: '— Not recorded —' },
-  { value: 'sound', label: 'Sound (healthy)' },
-  { value: 'decayed', label: 'Decayed (D)' },
-  { value: 'filled_decay', label: 'Filled with decay (D)' },
-  { value: 'filled', label: 'Filled, no decay (F)' },
-  { value: 'missing_caries', label: 'Missing due to caries (M)' },
-  { value: 'missing_other', label: 'Missing — other reason' },
-  { value: 'excluded', label: 'Excluded' },
+// Status options with clarifying questions
+const PERMANENT_STATUS_OPTIONS: { 
+  value: PermanentToothStatus; 
+  label: string; 
+  question: string;
+  color: string;
+}[] = [
+  { 
+    value: 'sound', 
+    label: 'Sound (healthy)',
+    question: 'Is this tooth completely healthy with no caries, fillings, or restorations?',
+    color: 'bg-white border-gray-300'
+  },
+  { 
+    value: 'decayed', 
+    label: 'Decayed (D)',
+    question: 'Is there visible caries (cavitation, soft enamel, or dentin)?',
+    color: 'bg-red-100 border-red-500'
+  },
+  { 
+    value: 'filled_decay', 
+    label: 'Filled with decay (D)',
+    question: 'Does this tooth have a filling AND secondary caries?',
+    color: 'bg-red-200 border-red-600'
+  },
+  { 
+    value: 'filled', 
+    label: 'Filled, no decay (F)',
+    question: 'Does this tooth have a filling with NO caries present?',
+    color: 'bg-blue-100 border-blue-500'
+  },
+  { 
+    value: 'missing_caries', 
+    label: 'Missing due to caries (M)',
+    question: 'Was this tooth extracted or missing BECAUSE OF CARIES?',
+    color: 'bg-gray-400 border-gray-600'
+  },
+  { 
+    value: 'missing_other', 
+    label: 'Missing — other reason',
+    question: 'Is this tooth missing for a reason OTHER than caries? (e.g., trauma, orthodontic, congenital)',
+    color: 'bg-gray-300 border-gray-400'
+  },
+  { 
+    value: 'excluded', 
+    label: 'Excluded',
+    question: 'Should this tooth be excluded from the examination? (e.g., not erupted, orthodontic extraction, crown/bridge abutment)',
+    color: 'bg-gray-100 border-gray-200'
+  },
 ];
 
-// Status options for primary teeth
-const PRIMARY_STATUS_OPTIONS: { value: PrimaryToothStatus; label: string }[] = [
-  { value: 'not_recorded', label: '— Not recorded —' },
-  { value: 'sound', label: 'Sound (healthy)' },
-  { value: 'decayed', label: 'Decayed (d)' },
-  { value: 'filled_decay', label: 'Filled with decay (d)' },
-  { value: 'filled', label: 'Filled, no decay (f)' },
-  { value: 'missing_caries', label: 'Missing due to caries (m)' },
-  { value: 'extracted_caries', label: 'Extracted due to caries (e)' },
-  { value: 'missing_other', label: 'Missing — other reason' },
-  { value: 'extracted_other', label: 'Extracted — other reason' },
-  { value: 'excluded', label: 'Excluded' },
+const PRIMARY_STATUS_OPTIONS: { 
+  value: PrimaryToothStatus; 
+  label: string; 
+  question: string;
+  color: string;
+}[] = [
+  { 
+    value: 'sound', 
+    label: 'Sound (healthy)',
+    question: 'Is this tooth completely healthy with no caries, fillings, or restorations?',
+    color: 'bg-white border-gray-300'
+  },
+  { 
+    value: 'decayed', 
+    label: 'Decayed (d)',
+    question: 'Is there visible caries (cavitation, soft enamel, or dentin)?',
+    color: 'bg-red-100 border-red-500'
+  },
+  { 
+    value: 'filled_decay', 
+    label: 'Filled with decay (d)',
+    question: 'Does this tooth have a filling AND secondary caries?',
+    color: 'bg-red-200 border-red-600'
+  },
+  { 
+    value: 'filled', 
+    label: 'Filled, no decay (f)',
+    question: 'Does this tooth have a filling with NO caries present?',
+    color: 'bg-blue-100 border-blue-500'
+  },
+  { 
+    value: 'missing_caries', 
+    label: 'Missing due to caries (m)',
+    question: 'Was this tooth missing BECAUSE OF CARIES?',
+    color: 'bg-gray-400 border-gray-600'
+  },
+  { 
+    value: 'extracted_caries', 
+    label: 'Extracted due to caries (e)',
+    question: 'Was this tooth extracted BECAUSE OF CARIES?',
+    color: 'bg-gray-500 border-gray-700'
+  },
+  { 
+    value: 'missing_other', 
+    label: 'Missing — other reason',
+    question: 'Is this tooth missing for a reason OTHER than caries?',
+    color: 'bg-gray-300 border-gray-400'
+  },
+  { 
+    value: 'extracted_other', 
+    label: 'Extracted — other reason',
+    question: 'Was this tooth extracted for a reason OTHER than caries? (e.g., trauma, orthodontic)',
+    color: 'bg-gray-200 border-gray-300'
+  },
+  { 
+    value: 'excluded', 
+    label: 'Excluded',
+    question: 'Should this tooth be excluded from the examination? (e.g., not erupted, exfoliating)',
+    color: 'bg-gray-100 border-gray-200'
+  },
 ];
 
 function getToothStatusClass(status: PermanentToothStatus | PrimaryToothStatus): string {
@@ -70,15 +157,15 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
 
   let upperLeft: string[], upperRight: string[], lowerLeft: string[], lowerRight: string[];
   if (dentition === 'permanent') {
-    upperLeft = getQuadrant(teeth, 11, 18).reverse();  // 18,17,...,11
-    upperRight = getQuadrant(teeth, 21, 28);            // 21,22,...,28
-    lowerLeft = getQuadrant(teeth, 41, 48).reverse();   // 48,47,...,41
-    lowerRight = getQuadrant(teeth, 31, 38);            // 31,32,...,38
+    upperLeft = getQuadrant(teeth, 11, 18).reverse();
+    upperRight = getQuadrant(teeth, 21, 28);
+    lowerLeft = getQuadrant(teeth, 41, 48).reverse();
+    lowerRight = getQuadrant(teeth, 31, 38);
   } else {
-    upperLeft = getQuadrant(teeth, 51, 55).reverse();   // 55,54,...,51
-    upperRight = getQuadrant(teeth, 61, 65);            // 61,62,...,65
-    lowerLeft = getQuadrant(teeth, 81, 85).reverse();   // 85,84,...,81
-    lowerRight = getQuadrant(teeth, 71, 75);            // 71,72,...,75
+    upperLeft = getQuadrant(teeth, 51, 55).reverse();
+    upperRight = getQuadrant(teeth, 61, 65);
+    lowerLeft = getQuadrant(teeth, 81, 85).reverse();
+    lowerRight = getQuadrant(teeth, 71, 75);
   }
 
   const renderToothButton = (code: string) => {
@@ -90,7 +177,7 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
       <button
         key={code}
         type="button"
-        onClick={() => setSelectedTooth(isSelected ? null : code)}
+        onClick={() => setSelectedTooth(code)}
         className={`tooth-btn ${getToothStatusClass(status)} ${isSelected ? 'ring-2 ring-[#0066cc] ring-offset-1' : ''}`}
         aria-label={`Tooth ${code}, status: ${status}`}
         title={`Tooth ${code}: ${status}`}
@@ -120,7 +207,7 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
           {dentition === 'permanent' ? 'Permanent Dentition (32 teeth)' : 'Primary Dentition (20 teeth)'}
         </div>
 
-        {/* Upper arch — stacked quadrants */}
+        {/* Upper arch */}
         <div className="space-y-2 mb-3">
           <div className="text-[10px] text-gray-400 text-center uppercase tracking-wide">Upper Arch</div>
           {renderQuadrant(upperLeft, dentition === 'permanent' ? 'Upper Right (18→11)' : 'Upper Right (55→51)')}
@@ -130,7 +217,7 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
         {/* Midline divider */}
         <div className="border-t-2 border-dashed border-gray-300 my-2" />
 
-        {/* Lower arch — stacked quadrants */}
+        {/* Lower arch */}
         <div className="space-y-2">
           <div className="text-[10px] text-gray-400 text-center uppercase tracking-wide">Lower Arch</div>
           {renderQuadrant(lowerLeft, dentition === 'permanent' ? 'Lower Right (48→41)' : 'Lower Right (85→81)')}
@@ -138,35 +225,69 @@ export default function ToothChart({ dentition, findings, onToothClick }: ToothC
         </div>
       </div>
 
-      {/* Status selector — DROPDOWN for mobile/tablet */}
+      {/* Status selector MODAL POPUP */}
       {selectedTooth && (
-        <div className="card p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="font-semibold text-sm">
-              Tooth {selectedTooth}
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedTooth(null)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b bg-[#0066cc] text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs opacity-80">Tooth</div>
+                  <div className="text-2xl font-bold">{selectedTooth}</div>
+                </div>
+                <button
+                  onClick={() => setSelectedTooth(null)}
+                  className="text-white hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center text-2xl"
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+              </div>
+              {currentStatus !== 'not_recorded' && (
+                <div className="text-xs mt-1 opacity-90">
+                  Current status: {statusOptions.find(s => s.value === currentStatus)?.label || currentStatus}
+                </div>
+              )}
             </div>
-            <button
-              type="button"
-              onClick={() => setSelectedTooth(null)}
-              className="text-xs text-gray-500 underline"
-            >
-              Close
-            </button>
-          </div>
-          <label className="form-label">Select Status</label>
-          <select
-            className="form-select"
-            value={currentStatus}
-            onChange={e => {
-              onToothClick(selectedTooth, e.target.value as PermanentToothStatus | PrimaryToothStatus);
-            }}
-          >
-            {statusOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <div className="mt-2 text-xs text-gray-500">
-            Tap another tooth to change selection, or tap "Close" to dismiss.
+
+            {/* Modal Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <div className="text-sm text-gray-600 mb-4">
+                Select the status for tooth {selectedTooth}:
+              </div>
+
+              <div className="space-y-3">
+                {statusOptions.map(option => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      onToothClick(selectedTooth, option.value);
+                      setSelectedTooth(null);
+                    }}
+                    className={`w-full text-left p-4 rounded-lg border-2 transition-all
+                      ${currentStatus === option.value
+                        ? 'border-[#0066cc] bg-[#e6f0ff] ring-2 ring-[#0066cc]/20'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                  >
+                    <div className="font-semibold text-sm mb-1">{option.label}</div>
+                    <div className="text-xs text-gray-600">{option.question}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t bg-gray-50">
+              <button
+                onClick={() => setSelectedTooth(null)}
+                className="btn-secondary w-full"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
